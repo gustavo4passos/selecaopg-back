@@ -6,11 +6,14 @@ const Schema = use('Schema')
 class SelectionSchema extends Schema {
   up () {
     this.create('selections', (table) => {
-      table.increments()
+      table.increments() // ID
 
+      table.string('notice').notNullable().unique()
+      table.date('semester').notNullable()
+      table.integer('vacancies').notNullable()
+      table.date('deadline').notNullable()
       
-
-      table.timestamps()
+      table.timestamps() // CREATED_AT AND UPDATED_AT
     })
   }
 

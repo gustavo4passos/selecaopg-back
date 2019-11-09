@@ -33,7 +33,7 @@ class User extends Model {
    */
 
   selections() {
-    return this.hasMany('App/Models/Selection')
+    return this.belongsToMany('App/Models/Selection')
   }
 
   tokens () {
