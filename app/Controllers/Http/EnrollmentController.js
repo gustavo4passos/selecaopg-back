@@ -7,7 +7,7 @@
 /**
  * Resourceful controller for interacting with usersselections
  */
-class UsersSelectionController {
+class EnrollmentController {
   /**
    * Show a list of all usersselections.
    * GET usersselections
@@ -18,18 +18,7 @@ class UsersSelectionController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-  }
 
-  /**
-   * Render a form to be used for creating a new usersselection.
-   * GET usersselections/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
   }
 
   /**
@@ -41,6 +30,7 @@ class UsersSelectionController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    
   }
 
   /**
@@ -53,18 +43,7 @@ class UsersSelectionController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
-  }
 
-  /**
-   * Render a form to update an existing usersselection.
-   * GET usersselections/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
   }
 
   /**
@@ -76,6 +55,7 @@ class UsersSelectionController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    
   }
 
   /**
@@ -87,7 +67,8 @@ class UsersSelectionController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
+
   }
 }
 
-module.exports = UsersSelectionController
+module.exports = EnrollmentController

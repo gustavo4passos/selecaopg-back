@@ -19,5 +19,9 @@ const Route = use('Route')
 Route.on('/').render('welcome')
 Route.post('/users', 'UserController.create')
 Route.post('/sessions', 'SessionController.create')
+Route.post('/sessions/logout', 'SessionController.logout')
 
-Route.resource('selections', 'SelectionController').apiOnly().middleware('auth')
+Route.get('/selections', 'SelectionController.index')
+Route.post('/selections/:id/subscribe', 'SelectionController.subscribe')
+
+Route.resource('enrollments', 'EnrollmentController').apiOnly().middleware('auth')

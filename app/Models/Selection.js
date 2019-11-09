@@ -5,7 +5,7 @@ const Model = use('Model')
 
 class Selection extends Model {
 	users() {
-		return this.hasMany('App/Models/Users')
+		return this.belongsToMany('App/Models/User')
 	}
 }
 
