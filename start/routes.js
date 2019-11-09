@@ -22,6 +22,9 @@ Route.post('/sessions', 'SessionController.create')
 Route.post('/sessions/logout', 'SessionController.logout')
 
 Route.get('/selections', 'SelectionController.index')
-Route.post('/selections/:id/subscribe', 'SelectionController.subscribe')
+Route.get('/selections/:id', 'SelectionController.show')
+Route.post('/selections', 'SelectionController.store')
+Route.put('/selections/:id', 'SelectionController.update')
+Route.delete('/selections/:id', 'SelectionController.destroy')
 
 Route.resource('enrollments', 'EnrollmentController').apiOnly().middleware('auth')
