@@ -32,6 +32,26 @@ class User extends Model {
    * @return {Object}
    */
 
+  static get rules() {
+	return {
+		email: 'email|unique:users',
+		fullname: 'required',
+		password: 'required'
+	}
+  }
+
+  static get updateRules() {
+  	return {
+		email: 'email',
+		fullname: 'min:1',
+		password: 'min:8'
+	}
+  }
+
+  static get hidden() {
+	return ['password'] 
+  }
+
   selections() {
     return this.belongsToMany('App/Models/Selection')
   }
