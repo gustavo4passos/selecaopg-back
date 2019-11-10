@@ -67,7 +67,9 @@ class PublicationController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
-    const publication = await Publication.findOrFail(params.id)
+    const publication = await Publication.findBy('id', params.id)
+
+    if(!publication) return await response.status(404).json({'Error': 'Publication not found' })
 
 		return publication
   }
@@ -81,7 +83,7 @@ class PublicationController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response, auth }) {
+  async update ({ params, request, response }) {
     const publication = await Publication.findBy('id', params.id)
 
     if(!publication) return await response.status(404).json({'Error': 'Publication not found' })
@@ -111,7 +113,7 @@ class PublicationController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response, auth }) {
+  async destroy ({ params, request, response }) {
     const publication = await Publication.findBy('id', params.id)
 
     if(!publication) return await response.status(404).json({'Error': 'Publication not found' })
