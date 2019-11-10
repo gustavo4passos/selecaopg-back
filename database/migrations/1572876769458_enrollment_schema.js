@@ -13,11 +13,10 @@ class EnrollmentSchema extends Schema {
 	  table.string('advisor_name').notNullable()
 	  table.string('lattes_link')
 	  table.string('undergraduate_university').notNullable()
-	  table.string('undergraduate_transcript').notNullable()
 	  table.string('enade_link')
+	  table.string('undergraduate_transcript').notNullable()
 	  table.string('graduate_transcript').notNullable()
-	  table.string('scientific_productions')
-	  table.string('publications')
+	  table.float('score').notNullable()
 
       table
       	.integer('user_id')

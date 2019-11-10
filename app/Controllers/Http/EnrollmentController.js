@@ -12,59 +12,57 @@ const Enrollment = use('App/Models/Enrollment')
 const Validator  = use('Validator')
 
 class EnrollmentController {
-  /**
-   * Show a list of all usersselections.
-   * GET usersselections
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+	/**
+	 * Show a list of all usersselections.
+	 * GET usersselections
+	 *
+	 * @param {object} ctx
+	 * @param {Request} ctx.request
+	 * @param {Response} ctx.response
+	 * @param {View} ctx.view
+	 */
+	async index ({ request, response, view }) {
 
-  }
-
-  async create ({ request, response, auth }) {
-	const idsRules = {
-		user_id: 'integer|required',
-		selection_id: 'integer|required'
-	}
-	const idsValidation = await Validator.validate(request.all(), idsRules)
-
-	if(idsValidation.fails()) {
-		return await response.status(400).json(idsValidation.messages()) 
 	}
 
-  	const ids = request.only(['user_id', 'selection_id']);
+	async create ({ request, response, auth }) {
+		const idsRules = {
+			user_id: 'integer|required',
+			selection_id: 'integer|required'
+		}
 
-	if(ids.user_id != Number(auth.user.id)) {
-		return response.status(403).json({ 'Error': 'Enrolling a different user is forbidden'})
+		const idsValidation = await Validator.validate(request.all(), idsRules)
+
+		if(idsValidation.fails()) {
+			return await response.status(400).json(idsValidation.messages()) 
+		}
+
+		const ids = request.only(['user_id', 'selection_id']);
+
+		if(ids.user_id != Number(auth.user.id)) {
+			return response.status(403).json({ 'Error': 'Enrolling a different user is forbidden'})
+		}
+
+		const validation = await Validator.validate(request.all(), Enrollment.rules)
+		if(validation.fails()) {
+			return await response.status(400).json(validation.messages())
+		}
+
+		const data = request.only([
+			'entry_semester',
+			'degree',
+			'advisor_name',
+			'lattes_link',
+			'undergraduate_university',
+			'enade_link',
+			'undergraduate_transcript',
+			'graduate_transcript',
+			'user_id',
+			'selection_id'
+		])	
+
+		return Enrollment.create(data);
 	}
-
-	
-	const validation = await Validator.validate(request.all(), Enrollment.rules)
-	if(validation.fails()) {
-		return await response.status(400).json(validation.messages())
-	}
-
-	const data = request.only([
-		'entry_semester',
-		'degree',
-		'advisor_name',
-		'lattes_link',
-		'undergraduate_university',
-		'undergraduate_transcript',
-		'enade_link',
-		'graduate_transcript',
-		'scientific_production',
-		'publications',
-		'user_id',
-		'selection_id'
-	])	
-
-	return Enrollment.create(data);
-  }
 
   async read ({ params, request, response, view }) {
 	const idsRules = {

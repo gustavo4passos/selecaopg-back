@@ -11,14 +11,15 @@ class Enrollment extends Model {
 			advisor_name: 'string|required',
 			lattes_link: 'required',
 			undergraduate_university: 'string|required',
-			undergraduate_transcript: 'required',
 			enade_link: 'required',
-			graduate_transcript: 'required',
-			scientific_productions: 'required',
-			publications: 'required',
+			score: 'requierd',
 			user_id: 'integer|required',
 			selection_id: 'integer|required'
 		}
+	}
+
+	publications() {
+		return this.hasMany('App/Models/Publication')
 	}
 }
 

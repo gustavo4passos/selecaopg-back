@@ -9,7 +9,7 @@ class SelectionSchema extends Schema {
       table.increments() // ID
 
       table.string('notice').notNullable().unique()
-      table.date('semester').notNullable()
+      table.string('semester').notNullable()
       table.integer('vacancies').notNullable()
       table.date('deadline').notNullable()
       

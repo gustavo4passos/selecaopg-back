@@ -33,27 +33,27 @@ class User extends Model {
    */
 
   static get rules() {
-	return {
-		email: 'email|unique:users',
-		fullname: 'required|min:1',
-		password: 'required|min:8'
-	}
+    return {
+      email: 'email|unique:users',
+      fullname: 'required|min:1',
+      password: 'required|min:8'
+    }
   }
 
   static get updateRules() {
   	return {
-		email: 'email',
-		fullname: 'min:1',
-		password: 'min:8'
-	}
+      email: 'email',
+      fullname: 'min:1',
+      password: 'min:8'
+    }
   }
 
   static get hidden() {
-	return ['password'] 
+	  return ['password'] 
   }
 
   selections() {
-    return this.belongsToMany('App/Models/Selection')
+    return this.belongsToMany('App/Models/Selection').pivotTable('enrollments')
   }
 
   tokens () {
