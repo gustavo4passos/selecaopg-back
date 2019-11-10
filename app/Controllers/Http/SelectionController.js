@@ -8,6 +8,7 @@ const Helpers = use('Helpers')
 const { validate } = use('Validator')
 const User = use('App/Models/User')
 const Selection = use('App/Models/Selection')
+
 /**
  * Resourceful controller for interacting with selections
  */
@@ -35,7 +36,22 @@ class SelectionController {
 	 * @param {Response} ctx.response
 	 */
 	async store ({ request, response }) {
+		const rules = {
+			notice: 'required',
+			semester: 'required',
+			vacancies: 'required',
+			deadline: 'required'
+		}
+
+		const validation = await validate(request.all(), rules)
+
+		if (validation.fails()) {
+			return response.json(validation.messages())
+		}
 		
+		const data = request.only(['notice', 'semester', 'vacancies', 'deadline'])
+
+		return Selection.create(data);
 	}
 
 	/**
@@ -65,6 +81,34 @@ class SelectionController {
 	 * @param {Response} ctx.response
 	 */
 	async update ({ params, request, response }) {
+		var selection = await Selection.findOrFail(params.id)
+
+		const rules = {
+			notice: 'required',
+			semester: 'required',
+			vacancies: 'required',
+			deadline: 'required'
+		}
+
+		const validation = await validate(request.all(), rules)
+
+		if (validation.fails()) {
+			return response.json(validation.messages())
+		}
+
+		var edit = request.only(['notice', 'semester', 'vacancies', 'deadline'])
+
+		selection.notice = edit.notice
+		selection.semester = edit.semester
+		selection.vacancies = edit.vacancies
+		selection.deadline = edit.deadline
+		
+
+		await selection.save()
+
+		return selection
+
+		
 	}
 
 	/**
@@ -76,6 +120,9 @@ class SelectionController {
 	 * @param {Response} ctx.response
 	 */
 	async destroy ({ params, request, response }) {
+		const selection = await Selection.findOrFail(params.id)
+
+		await selection.delete()
 	}
 
 	async subscribe ({ params, request, session, response }) {		
