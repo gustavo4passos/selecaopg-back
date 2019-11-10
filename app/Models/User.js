@@ -35,8 +35,8 @@ class User extends Model {
   static get rules() {
 	return {
 		email: 'email|unique:users',
-		fullname: 'required',
-		password: 'required'
+		fullname: 'required|min:1',
+		password: 'required|min:8'
 	}
   }
 
