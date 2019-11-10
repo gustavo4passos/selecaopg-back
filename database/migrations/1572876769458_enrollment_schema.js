@@ -5,25 +5,23 @@ const Schema = use('Schema')
 
 class EnrollmentSchema extends Schema {
   up () {
-    this.create('enrollment', (table) => {
+    this.create('enrollments', (table) => {
 	  table.increments()
 	  
-	  table.string('fullname')
-	  table.string('entry_semester')
-	  table.enu('degree', ['masters', 'doctorate'])
-	  table.string('advisor_name')
+	  table.string('entry_semester').notNullable()
+	  table.enu('degree', ['masters', 'doctorate']).notNullable()
+	  table.string('advisor_name').notNullable()
 	  table.string('lattes_link')
-	  table.string('email')
-	  table.string('phone')
-	  table.string('undergraduate_university')
-	  table.string('undergraduate_transcript')
+	  table.string('undergraduate_university').notNullable()
+	  table.string('undergraduate_transcript').notNullable()
 	  table.string('enade_link')
-	  table.string('graduate_transcript')
-	  table.string('scientific_production')
+	  table.string('graduate_transcript').notNullable()
+	  table.string('scientific_productions')
 	  table.string('publications')
 
       table
       	.integer('user_id')
+		.notNullable()
       	.unsigned()
       	.references('id')
       	.inTable('users')
@@ -32,6 +30,7 @@ class EnrollmentSchema extends Schema {
 
       table
       	.integer('selection_id')
+		.notNullable()
       	.unsigned()
       	.references('id')
       	.inTable('selections')
