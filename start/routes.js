@@ -27,4 +27,14 @@ Route.post('/selections', 'SelectionController.store')
 Route.put('/selections/:id', 'SelectionController.update')
 Route.delete('/selections/:id', 'SelectionController.destroy')
 
-Route.resource('enrollments', 'EnrollmentController').apiOnly().middleware('auth')
+// User controller routes
+Route.get('/users/:id/', 'UserController.read').middleware('auth')
+Route.post('/users/', 'UserController.create')
+Route.put('/users/:id/', 'UserController.update').middleware('auth')
+Route.delete('/users/:id', 'UserController.destroy').middleware('auth')
+
+//Route.resource('enrollments', 'EnrollmentController').apiOnly().middleware('auth')
+Route.get('/enrollments/:id', 'EnrollmentController.read').middleware('auth')
+Route.post('/enrollments/', 'EnrollmentController.create').middleware('auth')
+Route.put('/enrollments/:id', 'EnrollmentController.update').middleware('auth')
+Route.delete('/enrollments/:id', 'EnrollmentController.delete').middleware('auth')
