@@ -5,7 +5,7 @@ const Model = use('Model')
 
 class Selection extends Model {
 	users() {
-		return this.belongsToMany('App/Models/User').pivotTable('enrollment')
+		return this.belongsToMany('App/Models/User').pivotTable('enrollments')
 	}
 }
 

@@ -21,6 +21,7 @@ Route.post('/users', 'UserController.create')
 Route.post('/sessions', 'SessionController.create')
 Route.post('/sessions/logout', 'SessionController.logout')
 
+//  Selection controller routes
 Route.get('/selections', 'SelectionController.index')
 Route.get('/selections/:id', 'SelectionController.show')
 Route.post('/selections', 'SelectionController.store')
@@ -38,3 +39,6 @@ Route.get('/enrollments/:id', 'EnrollmentController.read').middleware('auth')
 Route.post('/enrollments/', 'EnrollmentController.create').middleware('auth')
 Route.put('/enrollments/:id', 'EnrollmentController.update').middleware('auth')
 Route.delete('/enrollments/:id', 'EnrollmentController.delete').middleware('auth')
+
+// Publication controller routes
+Route.resource('publications', 'PublicationController').apiOnly().middleware('auth')

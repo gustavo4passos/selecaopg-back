@@ -37,10 +37,10 @@ class SelectionController {
 	 */
 	async store ({ request, response }) {
 		const rules = {
-			notice: 'required',
-			semester: 'required',
-			vacancies: 'required',
-			deadline: 'required|date'
+			notice: 'string|required',
+			semester: 'string|required',
+			vacancies: 'integer|required',
+			deadline: 'date|required'
 		}
 
 		const validation = await validate(request.all(), rules)
@@ -51,7 +51,7 @@ class SelectionController {
 		
 		const data = request.only(['notice', 'semester', 'vacancies', 'deadline'])
 
-		return Selection.create(data);
+		return await Selection.create(data);
 	}
 
 	/**

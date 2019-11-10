@@ -4,7 +4,7 @@ const Validator = use('Validator')
 const User = use('App/Models/User')
 
 class UserController {
-	async create({ request, response }) {
+	async create({ request, response, auth }) {
 		const validation = await Validator.validate(request.all(), User.rules)
 
 		if(validation.fails()) {
@@ -12,7 +12,11 @@ class UserController {
 		}
 
 		const data = request.only(['fullname', 'email', 'password'])
-		return await User.create(data)
+		const user = await User.create(data)
+
+		const { token } = await auth.attempt(data.email, data.password)
+
+		return { token, user }
 	}
 
 	async read({ params, request, response, auth }) {
