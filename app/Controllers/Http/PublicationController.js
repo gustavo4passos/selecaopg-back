@@ -81,8 +81,10 @@ class PublicationController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
-    var publication = await Publication.findOrFail(params.id)
+  async update ({ params, request, response, auth }) {
+    const publication = await Publication.findBy('id', params.id)
+
+    if(!publication) return await response.status(404).json({'Error': 'Publication not found' })
 
 		const validation = await Validator.validate(request.all(), Publication.rules)
 
@@ -109,8 +111,10 @@ class PublicationController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
-    const publication = await Publication.findOrFail(params.id)
+  async destroy ({ params, request, response, auth }) {
+    const publication = await Publication.findBy('id', params.id)
+
+    if(!publication) return await response.status(404).json({'Error': 'Publication not found' })
 
 		await publication.delete()
   }
