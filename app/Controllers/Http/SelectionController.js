@@ -40,7 +40,7 @@ class SelectionController {
 			notice: 'required',
 			semester: 'required',
 			vacancies: 'required',
-			deadline: 'required'
+			deadline: 'required|date'
 		}
 
 		const validation = await validate(request.all(), rules)

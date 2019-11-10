@@ -57,7 +57,7 @@ class EnrollmentController {
 		'undergraduate_transcript',
 		'enade_link',
 		'graduate_transcript',
-		'scientific_production',
+		'scientific_productions',
 		'publications',
 		'user_id',
 		'selection_id'
@@ -124,7 +124,7 @@ class EnrollmentController {
 		'undergraduate_transcript',
 		'enade_link',
 		'graduate_transcript',
-		'scientific_production',
+		'scientific_productions',
 		'publications',
 		'user_id',
 		'selection_id'
