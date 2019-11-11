@@ -14,8 +14,8 @@ class EnrollmentSchema extends Schema {
 	  table.string('lattes_link')
 	  table.string('undergraduate_university').notNullable()
 	  table.string('enade_link')
-	  table.string('undergraduate_transcript').notNullable()
-	  table.string('graduate_transcript').notNullable()
+	  table.string('undergraduate_transcript')
+	  table.string('graduate_transcript')
 	  table.float('score').notNullable()
 
       table
