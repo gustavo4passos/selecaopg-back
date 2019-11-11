@@ -153,7 +153,7 @@ class SelectionController {
 		if (!selection) return response.status(404).json({'error': 'Selection not found.'})
 
 		[
-			{name: 'undergraduate_academic_history', type: 'pdf', size: '1mb', extnames: ['pdf']}
+			{ name: 'undergraduate_academic_history', type: 'pdf', size: '1mb', extnames: ['pdf']}
 		].map((props) => {
 			const file = request.file(props.name, {
 				types: [...props.type],
@@ -173,7 +173,7 @@ class SelectionController {
 			}
 		})
 
-		return response.json({success: 'Inscrição concluída'})
+		return response.json({ success: 'Inscrição concluída' })
 	}
 }
 
