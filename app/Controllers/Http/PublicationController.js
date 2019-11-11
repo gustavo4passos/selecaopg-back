@@ -52,7 +52,7 @@ class PublicationController {
 			return response.json(validation.messages())
     }
 
-    const data = request.only(['qualis', 'score', 'pdfLink'])
+    const data = request.only(['category', 'score', 'pdfLink'])
 
     return Publication.create(data);
   }
@@ -94,9 +94,9 @@ class PublicationController {
 			return response.json(validation.messages())
 		}
 
-		var edit = request.only(['qualis', 'score', 'pdfLink'])
+		var edit = request.only(['category', 'score', 'pdfLink'])
 
-		publication.qualis = edit.qualis
+		publication.category = edit.category
 		publication.score = edit.score
 		publication.pdfLink = edit.pdfLink
 
