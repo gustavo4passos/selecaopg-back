@@ -12,7 +12,7 @@ class Enrollment extends Model {
 			lattes_link: 'required',
 			undergraduate_university: 'string|required',
 			enade_link: 'required',
-			score: 'requierd',
+			score: 'required',
 			user_id: 'integer|required',
 			selection_id: 'integer|required'
 		}

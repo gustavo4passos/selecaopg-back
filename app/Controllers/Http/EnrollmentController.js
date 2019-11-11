@@ -59,20 +59,41 @@ class EnrollmentController {
 			'enade_link',
 			'undergraduate_transcript',
 			'graduate_transcript',
+			'score',
 			'user_id',
 			'selection_id'
 		])	
 
-		const enrollment = Enrollment.create(data)
+		const files = ['undergraduate_transcript', 'graduate_transcript']
 
-		if(this.createPublications({ 
+		files.map((filename) => {
+			const file = request.file(filename, {
+				types: ['pdf'],
+				size: '15mb',
+				extnames: ['pdf']
+			})
+	
+			if(file) this.moveFile({
+				request, 
+				file, 
+				filename: file.stream.filename,
+				selectionId: data.selection_id,
+				userId: data.user_id				
+			}) 
+		})
+
+		const enrollment = await Enrollment.create(data)
+
+		const { status, message } = await this.createPublications({ 
 			request, 
 			enrollmentId: enrollment.id, 
-			selectionId, 
-			userId }).status === 'error')
-		{
+			selectionId: enrollment.selection_id, 
+			userId: enrollment.user_id 
+		})
 
-		}
+		if(status === 'error') return response.status(400).json({status, message})
+
+		await enrollment.load('publications')
 
 		return response.json(enrollment)
 	}
@@ -184,67 +205,80 @@ class EnrollmentController {
 
 	async createPublications({ request, enrollmentId, selectionId, userId }) {
 		let publications
-
+		
+		if (!request.body.publications) return { status: 'success' }
 		try {
-			publications = JSON.parse(request.publications)
+			publications = JSON.parse(request.body.publications)
 		} catch(e) {
 			return { status: "error", message: "Invalid json publications syntax." }
 		}
-
-		for(publication in publications) {
+		console.log(publications)
+		for(let publication of publications) {
 			if(!publication.file && !publication.link) {
 				return { status: "error", message: "Publication needs either a link or a file." }
 			}
 
-			const validation = Validator.validate(publication, Publication.rules)
+			const rules = {
+				category: 'string|required',
+				score: 'required'
+			}
+
+			const validation = await Validator.validate(publication, rules)
 			if(validation.fails())
 			{
 				return { status: "error", message: validation.messages() }
 			}
 		}
 
-		for(publication in publications) {
+		for(let publication of publications) {
 			if(publication.file) {
-				const file = request.file(request[publication.file], {
+				const file = request.file(publication.file, {
 					types: ['pdf'],
 					size: '15mb',
 					extnames: ['pdf']
 				})
-				
 				if(file) publication.loaded_file = file;
 				else return { status: "error", message: `Unable to load file ${publication.file}` }
+			} else {
+				publication.pdfLink = publication.link
 			}
 		}
-		 
+
 		//  All publications are valid and files were successfully lodaded by now
-		for(publication in publications) {
+		for(let publication of publications) {
 			if(publication.file) {
-				const status = this.moveFile({
-					requests, 
+				const status = await this.moveFile({
+					request, 
 					file: publication.loaded_file, 
-					filename: file.stream.filename,
+					filename: publication.loaded_file.stream.filename,
 					selectionId,
 					userId				
 				})
-
-				if(status.status = "error") return { status: "error", message: status.message }
-				publication.file = status.path
+				console.log(status)
+				if(status.status === 'error') return { status: 'error', message: status.message }
+				publication.pdfLink = status.path+'/'+publication.loaded_file.stream.filename
+				
+				delete publication.file
+				delete publication.loaded_file
 			}
 		}
 
-		for(publication in publications)
+		for(let publication of publications)
 		{
-			Publication.create(publication)
+			
+
+			publication.enrollment_id = enrollmentId
+			await Publication.create(publication)
 		}
 
 		return { status: "success" }
   }
 
-  async moveFile({ requests, file, filename, selectionId, userId}) {
+  async moveFile({ request, file, filename, selectionId, userId}) {
 	  const newPath = Helpers.tmpPath(`uploads/${selectionId}/${userId}`)
 
 	  if(file) {
-		  file.move(newPath), {
+		  await file.move((newPath), {
 			  name: file.stream.filename,
 			  overwrite: true
 		  })
@@ -252,7 +286,7 @@ class EnrollmentController {
 		  if(!file.moved()) {
 			  return { status: "error", message: file.error() }
 		  }
-	  }
+	}
 	  else return { status: "error", message: `Invalid file: ${filename}`}
 	  return { status: "success", path: newPath }
   }
