@@ -3,7 +3,7 @@
 const User = use('App/Models/User')
 
 class SessionController {
-	async create({request, auth}) {
+	async create({ request, auth }) {
 		const { email, password } = request.all()
 		
 		const userData = await User.findBy('email', email)
@@ -11,7 +11,7 @@ class SessionController {
 		return { token, user: userData }
 	}
 
-	async logout( {request, auth} ) {
+	async logout({ request, auth }) {
 		return await auth.logout()
 	}
 }

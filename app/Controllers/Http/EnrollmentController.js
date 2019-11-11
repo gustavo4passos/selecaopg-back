@@ -9,7 +9,9 @@
  */
 
 const Enrollment = use('App/Models/Enrollment')
+const Publication = use('App/Models/Publication')
 const Validator  = use('Validator')
+const Helpers    = use('Helpers')
 
 class EnrollmentController {
 	/**
@@ -61,7 +63,18 @@ class EnrollmentController {
 			'selection_id'
 		])	
 
-		return Enrollment.create(data);
+		const enrollment = Enrollment.create(data)
+
+		if(this.createPublications({ 
+			request, 
+			enrollmentId: enrollment.id, 
+			selectionId, 
+			userId }).status === 'error')
+		{
+
+		}
+
+		return response.json(enrollment)
 	}
 
   async read ({ params, request, response, view }) {
@@ -99,7 +112,7 @@ class EnrollmentController {
 		return await response.status(400).json(idsValidation.messages()) 
 	}
 
-  	const ids = request.only(['user_id', 'selection_id']);
+  	const ids = request.only(['user_id', 'selection_id'])
 
 	if(ids.user_id != Number(auth.user.id)) {
 		return await response.status(403).json({ 'Error': 'Updating other user\'s enrollment is forbidden' })
@@ -156,7 +169,7 @@ class EnrollmentController {
 		return await response.status(400).json(idsValidation.messages()) 
 	}
 
-  	const ids = request.only(['user_id', 'selection_id']);
+  	const ids = request.only(['user_id', 'selection_id'])
 
 	if(ids.user_id != Number(auth.user.id)) {
 		return await response.status(403).json({ 'Error': 'Updating other user\'s enrollment is forbidden' })
@@ -165,8 +178,83 @@ class EnrollmentController {
 	const enrollment = Enrollment.findBy('id', params.id)
 	if(!enrollment) return await response.status(404).json({ 'Error': 'Enrollment not found' })
 
-	await user.delete()
-	return await response.status(200).json({ 'Status': 'User successfully deleted' })
+	await enrollment.delete()
+	return await response.status(200).json({ 'Status': 'Enrollment successfully deleted' })
+  }
+
+	async createPublications({ request, enrollmentId, selectionId, userId }) {
+		let publications
+
+		try {
+			publications = JSON.parse(request.publications)
+		} catch(e) {
+			return { status: "error", message: "Invalid json publications syntax." }
+		}
+
+		for(publication in publications) {
+			if(!publication.file && !publication.link) {
+				return { status: "error", message: "Publication needs either a link or a file." }
+			}
+
+			const validation = Validator.validate(publication, Publication.rules)
+			if(validation.fails())
+			{
+				return { status: "error", message: validation.messages() }
+			}
+		}
+
+		for(publication in publications) {
+			if(publication.file) {
+				const file = request.file(request[publication.file], {
+					types: ['pdf'],
+					size: '15mb',
+					extnames: ['pdf']
+				})
+				
+				if(file) publication.loaded_file = file;
+				else return { status: "error", message: `Unable to load file ${publication.file}` }
+			}
+		}
+		 
+		//  All publications are valid and files were successfully lodaded by now
+		for(publication in publications) {
+			if(publication.file) {
+				const status = this.moveFile({
+					requests, 
+					file: publication.loaded_file, 
+					filename: file.stream.filename,
+					selectionId,
+					userId				
+				})
+
+				if(status.status = "error") return { status: "error", message: status.message }
+				publication.file = status.path
+			}
+		}
+
+		for(publication in publications)
+		{
+			Publication.create(publication)
+		}
+
+		return { status: "success" }
+  }
+
+  async moveFile({ requests, file, filename, selectionId, userId}) {
+	  const newPath = Helpers.tmpPath(`uploads/${selectionId}/${userId}`)
+
+	  if(file) {
+		  file.move(newPath), {
+			  name: file.stream.filename,
+			  overwrite: true
+		  })
+
+		  if(!file.moved()) {
+			  return { status: "error", message: file.error() }
+		  }
+	  }
+	  else return { status: "error", message: `Invalid file: ${filename}`}
+	  return { status: "success", path: newPath }
   }
 }
 
