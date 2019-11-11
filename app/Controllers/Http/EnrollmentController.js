@@ -84,14 +84,14 @@ class EnrollmentController {
 
 		const enrollment = await Enrollment.create(data)
 
-		const { status } = await this.createPublications({ 
+		const { status, message } = await this.createPublications({ 
 			request, 
 			enrollmentId: enrollment.id, 
 			selectionId: enrollment.selection_id, 
 			userId: enrollment.user_id 
 		})
 
-		if(status === 'error') return response.status(400).json({'status': 'error'})
+		if(status === 'error') return response.status(400).json({status, message})
 
 		await enrollment.load('publications')
 
@@ -205,13 +205,14 @@ class EnrollmentController {
 
 	async createPublications({ request, enrollmentId, selectionId, userId }) {
 		let publications
-
+		
+		if (!request.body.publications) return { status: 'success' }
 		try {
 			publications = JSON.parse(request.body.publications)
 		} catch(e) {
 			return { status: "error", message: "Invalid json publications syntax." }
 		}
-
+		console.log(publications)
 		for(let publication of publications) {
 			if(!publication.file && !publication.link) {
 				return { status: "error", message: "Publication needs either a link or a file." }
