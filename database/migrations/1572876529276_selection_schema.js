@@ -12,6 +12,7 @@ class SelectionSchema extends Schema {
       table.string('semester').notNullable()
       table.integer('vacancies').notNullable()
       table.date('deadline').notNullable()
+      table.boolean('active').notNullable()
       
       table.timestamps() // CREATED_AT AND UPDATED_AT
     })

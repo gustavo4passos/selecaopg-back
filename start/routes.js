@@ -22,11 +22,12 @@ Route.post('/sessions', 'SessionController.create')
 Route.post('/sessions/logout', 'SessionController.logout')
 
 //  Selection controller routes
-Route.get('/selections', 'SelectionController.index')
-Route.get('/selections/:id', 'SelectionController.show')
-Route.post('/selections', 'SelectionController.store')
-Route.put('/selections/:id', 'SelectionController.update')
-Route.delete('/selections/:id', 'SelectionController.destroy')
+//Route.get('/selections', 'SelectionController.index')
+Route.get('/selections/active', 'SelectionController.active').middleware('auth')
+Route.get('/selections/:id', 'SelectionController.show').middleware('auth')
+Route.post('/selections', 'SelectionController.store').middleware('auth')
+Route.put('/selections/:id', 'SelectionController.update').middleware('auth')
+Route.delete('/selections/:id', 'SelectionController.destroy').middleware('auth')
 
 // User controller routes
 Route.get('/users/:id/', 'UserController.read').middleware('auth')

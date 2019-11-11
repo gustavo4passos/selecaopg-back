@@ -8,6 +8,7 @@ const Helpers = use('Helpers')
 const { validate } = use('Validator')
 const User = use('App/Models/User')
 const Selection = use('App/Models/Selection')
+const Database = use('Database')
 
 /**
  * Resourceful controller for interacting with selections
@@ -40,7 +41,8 @@ class SelectionController {
 			notice: 'string|required',
 			semester: 'string|required',
 			vacancies: 'integer|required',
-			deadline: 'date|required'
+			deadline: 'date|required',
+			active: 'boolean|required'
 		}
 
 		const validation = await validate(request.all(), rules)
@@ -49,7 +51,7 @@ class SelectionController {
 			return response.json(validation.messages())
 		}
 		
-		const data = request.only(['notice', 'semester', 'vacancies', 'deadline'])
+		const data = request.only(['notice', 'semester', 'vacancies', 'deadline', 'active'])
 
 		return await Selection.create(data);
 	}
@@ -64,7 +66,11 @@ class SelectionController {
 	 * @param {View} ctx.view
 	 */
 	async show ({ params, request, response, view }) {
-		const selection = await Selection.findOrFail(params.id)
+		const selection = await Selection.findBy('id', params.id)
+
+		if(!selection){
+			return response.status(404).json({ 'Error': 'Selection not found' })
+		}
 
 		await selection.load('users')
 
@@ -81,13 +87,16 @@ class SelectionController {
 	 * @param {Response} ctx.response
 	 */
 	async update ({ params, request, response }) {
-		var selection = await Selection.findOrFail(params.id)
+		var selection = await Selection.findBy('id', params.id)
+
+		if(!selection) return response.status(404).json({ 'Error': 'Selection not found' })
 
 		const rules = {
-			notice: 'required',
-			semester: 'required',
-			vacancies: 'required',
-			deadline: 'required'
+			notice:    'string|required',
+			semester:  'string|required',
+			vacancies: 'integer|required',
+			deadline:  'date|required',
+			active:    'boolean|required'
 		}
 
 		const validation = await validate(request.all(), rules)
@@ -96,19 +105,18 @@ class SelectionController {
 			return response.json(validation.messages())
 		}
 
-		var edit = request.only(['notice', 'semester', 'vacancies', 'deadline'])
+		var edit = request.only(['notice', 'semester', 'vacancies', 'deadline', 'active'])
 
-		selection.notice = edit.notice
-		selection.semester = edit.semester
+		selection.notice    = edit.notice
+		selection.semester  = edit.semester
 		selection.vacancies = edit.vacancies
-		selection.deadline = edit.deadline
+		selection.deadline  = edit.deadline
+		selection.active    = edit.active
 		
 
 		await selection.save()
 
 		return selection
-
-		
 	}
 
 	/**
@@ -120,61 +128,26 @@ class SelectionController {
 	 * @param {Response} ctx.response
 	 */
 	async destroy ({ params, request, response }) {
-		const selection = await Selection.findOrFail(params.id)
+		const selection = await Selection.findBy('id', params.id)
+
+		if(!selection) return response.status(404).json({ 'Error': 'Selection not found' })
 
 		await selection.delete()
 	}
 
-	async subscribe ({ params, request, session, response }) {		
-		const rules = {
-			fullname: 'required',
-			email: 'required|email',
-			phone: 'required',
-			entry_semester: 'required',
-			course: 'required',
-			advisor_name: 'required',
-			lattes_link: 'required|url',
-			graduation_university: 'required',
-			enade_link: 'required|url'
-		} 
+	//Show activies Selections
+	async active({ params, request, response }){
+		const activeSelection = await Database.from('selections').where('active', 'true').first()
 
-		const validation = await validate(request.all(), rules)
+		console.log(activeSelection)
 
-		if (validation.fails()) {
-			return response.json({error: validation.messages()})
+		if(!activeSelection){
+			return { status: "error", message: "There's no active selection"}
 		}
 
-		const data = request.all()
-
-		const user = await User.findBy('email', data.email)
-		if (!user) return response.status(404).json({'error': 'User not found.'})
-		
-		const selection = await Selection.findBy('id', params.id)
-		if (!selection) return response.status(404).json({'error': 'Selection not found.'})
-
-		[
-			{ name: 'undergraduate_academic_history', type: 'pdf', size: '1mb', extnames: ['pdf']}
-		].map((props) => {
-			const file = request.file(props.name, {
-				types: [...props.type],
-				size: props.size,
-				extnames: [...props.extnames]
-			})
-
-			if (file) {
-				file.move(Helpers.tmpPath(`uploads/${params.id}/${user.id}`), {
-					name: file.stream.filename,
-					overwrite: true
-				})
-
-				if (!file.moved()){
-					return file.error()
-				}
-			}
-		})
-
-		return response.json({ success: 'Inscrição concluída' })
+		return activeSelection
 	}
+
 }
 
 module.exports = SelectionController
