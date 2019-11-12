@@ -12,7 +12,9 @@ class UserController {
 		}
 
 		const data = request.only(['fullname', 'email', 'password'])
+
 		const user = await User.create(data)
+		await user.load('enrollments.publications')
 
 		const { token } = await auth.attempt(data.email, data.password)
 
@@ -26,6 +28,8 @@ class UserController {
 
 		const user = await User.findBy('id', params.id)
 		if(!user) return response.status(404).json({ 'Error': 'User not found.'})
+
+		await user.load('enrollments.publications')
 
 		return await response.status(200).json(user)
 	}
@@ -50,6 +54,8 @@ class UserController {
 		user.password = data.password
 
 		await user.save()
+
+		await user.load('enrollments.publications')
 		return await response.json(user)
 	}
 	
