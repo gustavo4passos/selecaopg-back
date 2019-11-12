@@ -52,6 +52,27 @@ class PublicationController {
 			return response.json(validation.messages())
     }
 
+    [
+			{name: 'undergraduate_academic_history', type: 'pdf', size: '1mb', extnames: ['pdf']}
+		].map((props) => {
+			const file = request.file(props.name, {
+				types: [...props.type],
+				size: props.size,
+				extnames: [...props.extnames]
+			})
+
+			if (file) {
+				file.move(Helpers.tmpPath(`uploads/${params.id}/${user.id}`), {
+					name: file.stream.filename,
+					overwrite: true
+				})
+
+				if (!file.moved()){
+					return file.error()
+				}
+			}
+		})
+
     const data = request.only(['category', 'score', 'pdfLink'])
 
     return Publication.create(data);
