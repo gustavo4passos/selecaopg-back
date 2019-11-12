@@ -38,7 +38,7 @@ Route.delete('/users/:id', 'UserController.destroy').middleware('auth')
 Route.get('/enrollments/:id', 'EnrollmentController.read').middleware('auth')
 Route.post('/enrollments/', 'EnrollmentController.create').middleware('auth')
 Route.put('/enrollments/:id', 'EnrollmentController.update').middleware('auth')
-Route.delete('/enrollments/:id', 'EnrollmentController.delete').middleware('auth')
+Route.delete('/enrollments/:id', 'EnrollmentController.destroy').middleware('auth')
 
 // Publication controller routes
 Route.resource('publications', 'PublicationController').apiOnly().middleware('auth')

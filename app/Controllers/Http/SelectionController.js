@@ -37,10 +37,10 @@ class SelectionController {
 	 */
 	async store ({ request, response }) {
 		const rules = {
-			notice: 'string|required',
-			semester: 'string|required',
+			notice:    'string|required',
+			semester:  'string|required',
 			vacancies: 'integer|required',
-			deadline: 'date|required'
+			deadline:  'date|required'
 		}
 
 		const validation = await validate(request.all(), rules)

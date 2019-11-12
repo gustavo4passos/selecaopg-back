@@ -6,9 +6,9 @@ const Model = use('Model')
 class Publication extends Model {
     static get rules(){
         return {
+            score:    'number|required',
             category: 'string|required',
-            score: 'number|required',
-            pdfLink: 'string'
+            pdfLink:  'string'
         }
     }
 }
