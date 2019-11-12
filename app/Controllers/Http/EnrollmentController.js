@@ -180,30 +180,18 @@ class EnrollmentController {
   }
 
   async destroy ({ params, request, response, auth }) {
-	const idsRules = {
-		user_id: 'integer|required',
-		selection_id: 'integer|required'
+	const enrollment = await Enrollment.findBy('id', params.id);
+	if(!enrollment) return response.status(404).json({ 'Error': 'Enrollment not found. ' })
+
+	if(Number(enrollment.user_id) != Number(auth.user.id)) {
+		return await response.status(403).json({ 'Error': 'Deleting other user\'s enrollment is forbidden' })
 	}
-	const idsValidation = await Validator.validate(request.all(), idsRules)
-
-	if(idsValidation.fails()) {
-		return await response.status(400).json(idsValidation.messages()) 
-	}
-
-  	const ids = request.only(['user_id', 'selection_id'])
-
-	if(ids.user_id != Number(auth.user.id)) {
-		return await response.status(403).json({ 'Error': 'Updating other user\'s enrollment is forbidden' })
-	}
-
-	const enrollment = Enrollment.findBy('id', params.id)
-	if(!enrollment) return await response.status(404).json({ 'Error': 'Enrollment not found' })
 
 	await enrollment.delete()
 	return await response.status(200).json({ 'Status': 'Enrollment successfully deleted' })
   }
 
-	async createPublications({ request, enrollmentId, selectionId, userId }) {
+  async createPublications({ request, enrollmentId, selectionId, userId }) {
 		let publications
 		
 		if (!request.body.publications) return { status: 'success' }
@@ -212,9 +200,9 @@ class EnrollmentController {
 		} catch(e) {
 			return { status: "error", message: "Invalid json publications syntax." }
 		}
-		console.log(publications)
+
 		for(let publication of publications) {
-			if(!publication.file && !publication.link) {
+			if(!publication.file && !publication.pdfLink) {
 				return { status: "error", message: "Publication needs either a link or a file." }
 			}
 
@@ -254,7 +242,8 @@ class EnrollmentController {
 					selectionId,
 					userId				
 				})
-				console.log(status)
+
+				
 				if(status.status === 'error') return { status: 'error', message: status.message }
 				publication.pdfLink = status.path+'/'+publication.loaded_file.stream.filename
 				
@@ -265,10 +254,12 @@ class EnrollmentController {
 
 		for(let publication of publications)
 		{
-			
-
 			publication.enrollment_id = enrollmentId
-			await Publication.create(publication)
+			await Publication.create({ 
+				enrollment_id: publication.enrollment_id,
+				score: publication.score,
+				pdfLink: publication.pdfLink
+			})
 		}
 
 		return { status: "success" }
