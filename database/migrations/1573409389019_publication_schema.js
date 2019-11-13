@@ -11,6 +11,7 @@ class PublicationSchema extends Schema {
       table.string('category')
       table.float('score')
       table.string('pdfLink')
+      table.boolean('hasFile')
 
       table
       	.integer('enrollment_id')

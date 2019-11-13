@@ -34,8 +34,9 @@ Route.get('/users/:id/', 'UserController.read').middleware('auth')
 Route.post('/users/', 'UserController.create')
 Route.put('/users/:id/', 'UserController.update').middleware('auth')
 Route.delete('/users/:id', 'UserController.destroy').middleware('auth')
+Route.get('/ranking/:id', 'UserController.getRanking').middleware('auth')
 
-//Route.resource('enrollments', 'EnrollmentController').apiOnly().middleware('auth')
+// Enrollment routes
 Route.get('/enrollments/:id', 'EnrollmentController.read').middleware('auth')
 Route.post('/enrollments/', 'EnrollmentController.create').middleware('auth')
 Route.put('/enrollments/:id', 'EnrollmentController.update').middleware('auth')

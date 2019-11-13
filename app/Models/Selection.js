@@ -7,6 +7,10 @@ class Selection extends Model {
 	users() {
 		return this.belongsToMany('App/Models/User').pivotTable('enrollments')
 	}
+
+	enrollments() {
+		return this.hasMany('App/Models/Enrollment')
+	}
 }
 
 module.exports = Selection
