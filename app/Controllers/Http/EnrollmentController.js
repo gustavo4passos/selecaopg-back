@@ -8,21 +8,12 @@
  * Resourceful controller for interacting with usersselections
  */
 
-const Enrollment = use('App/Models/Enrollment')
+const Enrollment  = use('App/Models/Enrollment')
 const Publication = use('App/Models/Publication')
-const Validator  = use('Validator')
-const Helpers    = use('Helpers')
+const Validator   = use('Validator')
+const Helpers     = use('Helpers')
 
 class EnrollmentController {
-	/**
-	 * Show a list of all usersselections.
-	 * GET usersselections
-	 *
-	 * @param {object} ctx
-	 * @param {Request} ctx.request
-	 * @param {Response} ctx.response
-	 * @param {View} ctx.view
-	 */
 	async index ({ request, response, view }) {
 
 	}
@@ -202,7 +193,7 @@ class EnrollmentController {
 		}
 
 		for(let publication of publications) {
-			if(!publication.file && !publication.pdfLink) {
+			if(!publication.file && !publication.link) {
 				return { status: "error", message: "Publication needs either a link or a file." }
 			}
 
@@ -266,7 +257,7 @@ class EnrollmentController {
   }
 
   async moveFile({ request, file, filename, selectionId, userId}) {
-	  const newPath = Helpers.tmpPath(`uploads/${selectionId}/${userId}`)
+	  const newPath = Helpers.tmpPath(`uploads/selection-${selectionId}/user-${userId}`)
 
 	  if(file) {
 		  await file.move((newPath), {
@@ -278,7 +269,7 @@ class EnrollmentController {
 			  return { status: "error", message: file.error() }
 		  }
 	}
-	  else return { status: "error", message: `Invalid file: ${filename}`}
+	  else return { status: "error", message: `Unable to move file: ${file.stream.filename}`}
 	  return { status: "success", path: newPath }
   }
 }
