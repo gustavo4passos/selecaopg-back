@@ -108,7 +108,7 @@ class EnrollmentController {
 
 	const enrollment = Enrollment.findBy('id', params.id)
 
-	if(!enrollment) return resopnse.status(404).json({ 'Error': 'Enrollment not found' })
+	if(!enrollment) return response.status(404).json({ 'Error': 'Enrollment not found' })
 
 	return response.json(enrollment)
   }
