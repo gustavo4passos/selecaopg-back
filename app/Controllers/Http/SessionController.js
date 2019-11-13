@@ -3,10 +3,12 @@
 const User = use('App/Models/User')
 
 class SessionController {
-	async create({ request, auth }) {
+	async login({ request, auth }) {
 		const { email, password } = request.all()
 		
 		const userData = await User.findBy('email', email)
+		await userData.load('enrollments.publications')
+
 		const { token } = await auth.attempt(email, password)
 		return { token, user: userData }
 	}
