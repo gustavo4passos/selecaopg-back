@@ -11,6 +11,16 @@ class Selection extends Model {
 	enrollments() {
 		return this.hasMany('App/Models/Enrollment')
 	}
+
+	static get rules(){
+		return {
+			notice:    'string|required',
+			semester:  'string|required',
+			vacancies: 'integer|required',
+			deadline:  'date|required',
+			active:    'boolean|required'
+		}	
+	}
 }
 
 module.exports = Selection

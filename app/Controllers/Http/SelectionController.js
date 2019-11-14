@@ -20,19 +20,14 @@ class SelectionController {
 	}
 
 	async store ({ request, response }) {
-		const rules = {
-			notice:    'string|required',
-			semester:  'string|required',
-			vacancies: 'integer|required',
-			deadline: 'date|required',
-			active: 'boolean|required'
-
-		}
-
-		const validation = await validate(request.all(), rules)
+		const validation = await validate(request.all(), Selection.rules)
 
 		if (validation.fails()) {
-			return response.json(validation.messages())
+			return response.status(400).json({
+				status: 'error',
+				code: 'BAD_REQUEST',
+				message: validation.messages()
+			})
 		}
 		
 		const data = request.only(['notice', 'semester', 'vacancies', 'deadline', 'active'])
@@ -44,7 +39,11 @@ class SelectionController {
 		const selection = await Selection.findBy('id', params.id)
 
 		if(!selection){
-			return response.status(404).json({ 'Error': 'Selection not found' })
+			return response.status(404).json({
+				status: 'error',
+				code: 'SELECTION_NOT_FOUND',
+				message: 'Selection not found.'
+			})
 		}
 
 		await selection.load('users')
@@ -55,20 +54,21 @@ class SelectionController {
 	async update ({ params, request, response }) {
 		var selection = await Selection.findBy('id', params.id)
 
-		if(!selection) return response.status(404).json({ 'Error': 'Selection not found' })
+		if(!selection) return response.status(404).json({
+							status: 'error',
+							code: 'SELECTION_NOT_FOUND',
+							message: 'Selection not found.'
+						})
 
-		const rules = {
-			notice:    'string|required',
-			semester:  'string|required',
-			vacancies: 'integer|required',
-			deadline:  'date|required',
-			active:    'boolean|required'
-		}
 
-		const validation = await validate(request.all(), rules)
+		const validation = await validate(request.all(), Selection.rules)
 
 		if (validation.fails()) {
-			return response.json(validation.messages())
+			return response.status(400).json({
+				status: 'error',
+				code: 'BAD_REQUEST',
+				message: validation.messages()
+			})
 		}
 
 		var edit = request.only(['notice', 'semester', 'vacancies', 'deadline', 'active'])
@@ -88,9 +88,18 @@ class SelectionController {
 	async destroy ({ params, request, response }) {
 		const selection = await Selection.findBy('id', params.id)
 
-		if(!selection) return response.status(404).json({ 'Error': 'Selection not found' })
+		if(!selection) return response.status(404).json({
+							status: 'error',
+							code: 'SELECTION_NOT_FOUND',
+							message: 'Selection not found.'
+						})
 
 		await selection.delete()
+
+		return response.status(200).json({
+			status: 'success',
+			message: 'Selection successfully deleted.'
+		})
 	}
 
 	//Show activies Selections
@@ -98,7 +107,7 @@ class SelectionController {
 		const activeSelection = await Database.from('selections').where('active', 'true').first()
 
 		if(!activeSelection){
-			return response.status(404).json({ status: "error", message: "There's no active selection" })
+			return response.status(404).json({ status: "error", code: 'NO_ACTIVE_SELECTION', message: "There's no active selection" })
 		}
 
 		return activeSelection
