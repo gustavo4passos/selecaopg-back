@@ -23,24 +23,24 @@ class EnrollmentController {
 			user_id: 'integer|required',
 			selection_id: 'integer|required'
 		}
-
+		
 		const idsValidation = await Validator.validate(request.all(), idsRules)
-
+		
 		if(idsValidation.fails()) {
 			return await response.status(400).json(idsValidation.messages()) 
 		}
-
+		
 		const ids = request.only(['user_id', 'selection_id']);
-
+		
 		if(ids.user_id != Number(auth.user.id)) {
 			return response.status(403).json({ 'Error': 'Enrolling a different user is forbidden'})
 		}
-
+		
 		const validation = await Validator.validate(request.all(), Enrollment.rules)
 		if(validation.fails()) {
 			return await response.status(400).json(validation.messages())
 		}
-
+		
 		const data = request.only([
 			'entry_semester',
 			'degree',
@@ -54,16 +54,16 @@ class EnrollmentController {
 			'user_id',
 			'selection_id'
 		])	
-
+		
 		const files = ['undergraduate_transcript', 'graduate_transcript']
-
+		
 		files.map((filename) => {
 			const file = request.file(filename, {
 				types: ['pdf'],
 				size: '15mb',
 				extnames: ['pdf']
 			})
-	
+			
 			if(file) this.moveFile({
 				request, 
 				file, 
@@ -72,16 +72,21 @@ class EnrollmentController {
 				userId: data.user_id				
 			}) 
 		})
-
+		
+		const enrollmentValidation = await Validator.validate(data, Enrollment.rules)
+		if(enrollmentValidation.fails()) {
+			return response.status(400).json(enrollmentValidation.messages())
+		}
+		data.crpg = 10;
 		const enrollment = await Enrollment.create(data)
-
+		
 		const { status, message } = await this.createPublications({ 
 			request, 
 			enrollmentId: enrollment.id, 
 			selectionId: enrollment.selection_id, 
 			userId: enrollment.user_id 
 		})
-
+		
 		if(status === 'error') return response.status(400).json({status, message})
 
 		await enrollment.load('publications')
@@ -182,7 +187,7 @@ class EnrollmentController {
 	return await response.status(200).json({ 'Status': 'Enrollment successfully deleted' })
   }
 
-  async createPublications({ request, enrollmentId, selectionId, userId }) {
+  async  createPublications({ request, enrollmentId, selectionId, userId }) {
 		let publications
 		
 		if (!request.body.publications) return { status: 'success' }
@@ -211,6 +216,7 @@ class EnrollmentController {
 
 		for(let publication of publications) {
 			if(publication.file) {
+				publication.hasFile = true;
 				const file = request.file(publication.file, {
 					types: ['pdf'],
 					size: '15mb',
@@ -219,7 +225,8 @@ class EnrollmentController {
 				if(file) publication.loaded_file = file;
 				else return { status: "error", message: `Unable to load file ${publication.file}` }
 			} else {
-				publication.pdfLink = publication.link
+				publication.hasFile = false;
+				publication.pdf_link = publication.link
 			}
 		}
 
@@ -236,7 +243,7 @@ class EnrollmentController {
 
 				
 				if(status.status === 'error') return { status: 'error', message: status.message }
-				publication.pdfLink = status.path+'/'+publication.loaded_file.stream.filename
+				publication.pdf_link = status.path+'/'+publication.loaded_file.stream.filename
 				
 				delete publication.file
 				delete publication.loaded_file
@@ -249,7 +256,7 @@ class EnrollmentController {
 			await Publication.create({ 
 				enrollment_id: publication.enrollment_id,
 				score: publication.score,
-				pdfLink: publication.pdfLink
+				pdf_link: publication.pdf_link
 			})
 		}
 

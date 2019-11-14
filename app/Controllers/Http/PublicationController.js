@@ -45,7 +45,7 @@ class PublicationController {
 			}
 		})
 
-    const data = request.only(['category', 'score', 'pdfLink'])
+    const data = request.only(['category', 'score', 'pdf_link'])
 
     return Publication.create(data);
   }
@@ -69,11 +69,11 @@ class PublicationController {
 			return response.json(validation.messages())
 		}
 
-		var edit = request.only(['category', 'score', 'pdfLink'])
+		var edit = request.only(['category', 'score', 'pdf_link'])
 
 		publication.category = edit.category
 		publication.score = edit.score
-		publication.pdfLink = edit.pdfLink
+		publication.pdf_link = edit.pdf_link
 
 		await publication.save()
 

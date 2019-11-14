@@ -10,13 +10,20 @@ class EnrollmentSchema extends Schema {
 	  
 	  table.string('entry_semester').notNullable()
 	  table.enu('degree', ['masters', 'doctorate']).notNullable()
+	  table.enu('score_type', ['cr', 'conceito']).notNullable()
 	  table.string('advisor_name').notNullable()
 	  table.string('lattes_link')
 	  table.string('undergraduate_university').notNullable()
 	  table.string('enade_link')
+	  table.boolean('masters_freshman')
 	  table.string('undergraduate_transcript')
 	  table.string('graduate_transcript')
 	  table.float('score').notNullable()
+	  table.float('crpg').notNullable()
+	  table.float('rg')
+	  table.integer('capes')
+	  table.integer('enade')
+	  table.string('phone')
 
       table
       	.integer('user_id')
