@@ -41,43 +41,66 @@ class EnrollmentController {
 			return await response.status(400).json(validation.messages())
 		}
 		
-		const data = request.only([
+		var data = request.only([
 			'entry_semester',
 			'degree',
+			'score_type',
 			'advisor_name',
 			'lattes_link',
 			'undergraduate_university',
 			'enade_link',
-			'undergraduate_transcript',
-			'graduate_transcript',
+			'masters_freshman',
 			'score',
 			'user_id',
-			'selection_id'
+			'selection_id',
+			'crpg',
+			'rg',
+			'capes',
+			'enade',
+			'phone'
 		])	
 		
 		const files = ['undergraduate_transcript', 'graduate_transcript']
 		
-		files.map((filename) => {
+		let error = false;
+		for(let filename of files) {
 			const file = request.file(filename, {
 				types: ['pdf'],
 				size: '15mb',
 				extnames: ['pdf']
 			})
 			
-			if(file) this.moveFile({
+			if(file) {
+				const status = await this.moveFile({
 				request, 
 				file, 
 				filename: file.stream.filename,
 				selectionId: data.selection_id,
 				userId: data.user_id				
-			}) 
-		})
-		
+				}) 
+
+				if(status.status != 'success') {
+					return response.status(500).json({ 
+						status: 'error',
+						code: 'MOVE_FILE_ERROR',
+						message: status.message
+					})
+				}
+				else {
+					data[filename] = `${status.path}.pdf`
+				}
+			}
+			else return response.status(500).json({ 
+				status: error,
+				code: 'LOAD_FILE_ERROR',
+				message: `Unable to load file: ${filename}`
+			})
+		}
+
 		const enrollmentValidation = await Validator.validate(data, Enrollment.rules)
 		if(enrollmentValidation.fails()) {
 			return response.status(400).json(enrollmentValidation.messages())
 		}
-		data.crpg = 10;
 		const enrollment = await Enrollment.create(data)
 		
 		const { status, message } = await this.createPublications({ 
@@ -275,7 +298,7 @@ class EnrollmentController {
 		  if(!file.moved()) {
 			  return { status: "error", message: file.error() }
 		  }
-	}
+		}
 	  else return { status: "error", message: `Unable to move file: ${file.stream.filename}`}
 	  return { status: "success", path: newPath }
   }
