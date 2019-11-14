@@ -212,7 +212,11 @@ class EnrollmentController {
 
   async destroy ({ params, request, response, auth }) {
 	const enrollment = await Enrollment.findBy('id', params.id);
-	if(!enrollment) return response.status(404).json({ 'Error': 'Enrollment not found. ' })
+	if(!enrollment) return response.status(404).json({
+						status: 'error',
+						code: 'ENROLLMENT_NOT_FOUND',
+						message: 'Enrollment not found.'
+					})
 
 	if(Number(enrollment.user_id) != Number(auth.user.id)) {
 		return response.status(403).json({
@@ -223,7 +227,7 @@ class EnrollmentController {
 	}
 
 	await enrollment.delete()
-	
+
 	return response.status(200).json({
 		status: 'success',
 		message: 'Enrollment successfully deleted.'

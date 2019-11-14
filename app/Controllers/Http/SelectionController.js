@@ -20,16 +20,7 @@ class SelectionController {
 	}
 
 	async store ({ request, response }) {
-		const rules = {
-			notice:    'string|required',
-			semester:  'string|required',
-			vacancies: 'integer|required',
-			deadline: 'date|required',
-			active: 'boolean|required'
-
-		}
-
-		const validation = await validate(request.all(), rules)
+		const validation = await validate(request.all(), Selection.rules)
 
 		if (validation.fails()) {
 			return response.status(400).json({
@@ -69,15 +60,8 @@ class SelectionController {
 							message: 'Selection not found.'
 						})
 
-		const rules = {
-			notice:    'string|required',
-			semester:  'string|required',
-			vacancies: 'integer|required',
-			deadline:  'date|required',
-			active:    'boolean|required'
-		}
 
-		const validation = await validate(request.all(), rules)
+		const validation = await validate(request.all(), Selection.rules)
 
 		if (validation.fails()) {
 			return response.status(400).json({
