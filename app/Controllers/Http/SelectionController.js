@@ -111,6 +111,11 @@ class SelectionController {
 						})
 
 		await selection.delete()
+
+		return response.status(200).json({
+			status: 'success',
+			message: 'Selection successfully deleted.'
+		})
 	}
 
 	//Show activies Selections

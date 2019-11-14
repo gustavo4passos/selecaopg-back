@@ -105,7 +105,12 @@ class PublicationController {
                       message: 'Publication not found.'
                     })
 
-		await publication.delete()
+    await publication.delete()
+    
+    return response.status(200).json({
+			status: 'success',
+			message: 'Publication successfully deleted.'
+		})
   }
 }
 

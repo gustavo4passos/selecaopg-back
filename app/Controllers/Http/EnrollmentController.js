@@ -223,7 +223,11 @@ class EnrollmentController {
 	}
 
 	await enrollment.delete()
-	return await response.status(200).json({ 'Status': 'Enrollment successfully deleted' })
+	
+	return response.status(200).json({
+		status: 'success',
+		message: 'Enrollment successfully deleted.'
+	})
   }
 
   async createPublications({ request, enrollmentId, selectionId, userId }) {

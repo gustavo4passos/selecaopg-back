@@ -134,7 +134,12 @@ class UserController {
 		}
 
 		const selection = await Selection.findBy('id', enrollment.selection_id)
-		if(!selection) return response.status(500).json({ 'Error': 'Current enrollment doesn\'t belong to a valid selection.' })
+		
+		if(!selection) return response.status(404).json({
+							status: 'error',
+							code: 'SELECTION_NOT_FOUND',
+							message: 'Selection not found.'
+						})
 
 		const enrollments = await selection.enrollments().orderBy('score', 'desc').fetch()
 
