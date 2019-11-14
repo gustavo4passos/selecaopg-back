@@ -27,18 +27,30 @@ class EnrollmentController {
 		const idsValidation = await Validator.validate(request.all(), idsRules)
 
 		if(idsValidation.fails()) {
-			return await response.status(400).json(idsValidation.messages()) 
+			return response.status(400).json({
+				status: 'error',
+				code: 'BAD_REQUEST',
+				message: validation.messages()
+			}) 
 		}
 
 		const ids = request.only(['user_id', 'selection_id']);
 
 		if(ids.user_id != Number(auth.user.id)) {
-			return response.status(403).json({ 'Error': 'Enrolling a different user is forbidden'})
+			return response.status(403).json({
+				status: 'error',
+				code: 'DIFF_USER',
+				message: 'Acessing other user\'s profile is forbidden.'
+			}) 
 		}
 
 		const validation = await Validator.validate(request.all(), Enrollment.rules)
 		if(validation.fails()) {
-			return await response.status(400).json(validation.messages())
+			return response.status(400).json({
+				status: 'error',
+				code: 'BAD_REQUEST',
+				message: validation.messages()
+			})
 		}
 
 		const data = request.only([
@@ -97,18 +109,30 @@ class EnrollmentController {
 	const idsValidation = await Validator.validate(request.all(), idsRules)
 
 	if(idsValidation.fails()) {
-		return await response.status(400).json(idsValidation.messages()) 
+		return response.status(400).json({
+			status: 'error',
+			code: 'BAD_REQUEST',
+			message: validation.messages()
+		})
 	}
 
   	const ids = request.only(['user_id', 'selection_id'])
 
 	if(ids.user_id != Number(auth.user.id)) {
-		return response.status(403).json({ 'Error': 'Enrolling a different user is forbidden'})
+		return response.status(403).json({
+			status: 'error',
+			code: 'DIFF_USER',
+			message: 'Acessing other user\'s profile is forbidden.'
+		}) 
 	}
 
 	const enrollment = Enrollment.findBy('id', params.id)
 
-	if(!enrollment) return response.status(404).json({ 'Error': 'Enrollment not found' })
+	if(!enrollment) return response.status(404).json({
+						status: 'error',
+						code: 'ENROLLMENT_NOT_FOUND',
+						message: 'Enrollment not found.'
+					})
 
 	return response.json(enrollment)
   }
@@ -121,21 +145,37 @@ class EnrollmentController {
 	const idsValidation = await Validator.validate(request.all(), idsRules)
 
 	if(idsValidation.fails()) {
-		return await response.status(400).json(idsValidation.messages()) 
+		return response.status(400).json({
+			status: 'error',
+			code: 'BAD_REQUEST',
+			message: validation.messages()
+		})
 	}
 
   	const ids = request.only(['user_id', 'selection_id'])
 
 	if(ids.user_id != Number(auth.user.id)) {
-		return await response.status(403).json({ 'Error': 'Updating other user\'s enrollment is forbidden' })
+		return response.status(403).json({
+			status: 'error',
+			code: 'DIFF_USER',
+			message: 'Acessing other user\'s profile is forbidden.'
+		}) 
 	}
 
 	const enrollment = Enrollment.findBy('id', params.id)
-	if(!enrollment) return await response.status(404).json({ 'Error': 'Enrollment not found' })
+	if(!enrollment) return response.status(404).json({
+						status: 'error',
+						code: 'ENROLLMENT_NOT_FOUND',
+						message: 'Enrollment not found.'
+					})
 	
 	const validation = await Validator.validate(request.all(), Enrollment.rules)
 	if(validation.fails()) {
-		return await response.status(400).json(validation.messages())
+		return response.status(400).json({
+			status: 'error',
+			code: 'BAD_REQUEST',
+			message: validation.messages()
+		})
 	}
 
 	let data = request.only([
@@ -175,7 +215,11 @@ class EnrollmentController {
 	if(!enrollment) return response.status(404).json({ 'Error': 'Enrollment not found. ' })
 
 	if(Number(enrollment.user_id) != Number(auth.user.id)) {
-		return await response.status(403).json({ 'Error': 'Deleting other user\'s enrollment is forbidden' })
+		return response.status(403).json({
+			status: 'error',
+			code: 'DIFF_USER',
+			message: 'Acessing other user\'s profile is forbidden.'
+		}) 
 	}
 
 	await enrollment.delete()
@@ -203,9 +247,12 @@ class EnrollmentController {
 			}
 
 			const validation = await Validator.validate(publication, rules)
-			if(validation.fails())
-			{
-				return { status: "error", message: validation.messages() }
+			if(validation.fails()){
+				return response.status(400).json({
+					status: 'error',
+					code: 'BAD_REQUEST',
+					message: validation.messages()
+				})
 			}
 		}
 
