@@ -72,11 +72,11 @@ class EnrollmentController {
 			
 			if(file) {
 				const status = await this.moveFile({
-				request, 
-				file, 
-				filename: file.stream.filename,
-				selectionId: data.selection_id,
-				userId: data.user_id				
+					request, 
+					file, 
+					filename: file.stream.filename,
+					selectionId: data.selection_id,
+					userId: data.user_id				
 				}) 
 
 				if(status.status != 'success') {
@@ -90,11 +90,6 @@ class EnrollmentController {
 					data[filename] = `${status.path}.pdf`
 				}
 			}
-			else return response.status(500).json({ 
-				status: error,
-				code: 'LOAD_FILE_ERROR',
-				message: `Unable to load file: ${filename}`
-			})
 		}
 
 		const enrollmentValidation = await Validator.validate(data, Enrollment.rules)
@@ -117,7 +112,7 @@ class EnrollmentController {
 		return response.json(enrollment)
 	}
 
-  async read ({ params, request, response, view }) {
+  async read ({ params, request, response, auth }) {
 	const idsRules = {
 		user_id: 'integer|required',
 		selection_id: 'integer|required'
@@ -277,9 +272,13 @@ class EnrollmentController {
 		{
 			publication.enrollment_id = enrollmentId
 			await Publication.create({ 
+				category: publication.category,
 				enrollment_id: publication.enrollment_id,
 				score: publication.score,
-				pdf_link: publication.pdf_link
+				pdf_link: publication.pdf_link,
+				annals_link: publication.proceedingsLink,
+				event_link: publication.eventLink,
+				has_file: publication.hasFile?true:false
 			})
 		}
 

@@ -95,7 +95,7 @@ class SelectionController {
 
 	//Show activies Selections
 	async active({ params, request, response }){
-		const activeSelection = await Database.from('selections').where('active', '1').first()
+		const activeSelection = await Database.from('selections').where('active', 'true').first()
 
 		if(!activeSelection){
 			return response.status(404).json({ status: "error", message: "There's no active selection" })

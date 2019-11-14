@@ -10,8 +10,8 @@ class PublicationSchema extends Schema {
 
       table.string('category')
       table.float('score')
-      table.string('pdf_lnk')
-      table.boolean('hasFile')
+      table.string('pdf_link')
+      table.boolean('has_file')
       table.string('annals_link')
       table.string('event_link')
 
