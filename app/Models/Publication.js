@@ -8,7 +8,9 @@ class Publication extends Model {
         return {
             score:    'number|required',
             category: 'string|required',
-            pdfLink:  'string'
+            pdf_link:  'string',
+            annals_link: 'string',
+            event_link:  'string'
         }
     }
 }
