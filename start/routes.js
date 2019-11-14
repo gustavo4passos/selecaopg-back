@@ -17,7 +17,6 @@
 const Route = use('Route')
 
 Route.on('/').render('welcome')
-Route.post('/users', 'UserController.create')
 Route.post('/sessions', 'SessionController.login')
 Route.post('/sessions/logout', 'SessionController.logout')
 

@@ -10,26 +10,47 @@ class UserController {
 		const validation = await Validator.validate(request.all(), User.rules)
 
 		if(validation.fails()) {
-			return await response.json(validation.messages()) 
+			return response.status(400).json({
+				status: 'error',
+				code: 'BAD_REQUEST',
+				message: validation.messages()
+			})
 		}
 
 		const data = request.only(['fullname', 'email', 'password'])
 
-		const user = await User.create(data)
+		try {
+			var user = await User.create(data)
+		} catch(err) {
+			return response.status(500).json({
+				status: 'error',
+				code: 'DATABASE_ERROR',
+				message: 'An error occurred while trying to write data to database.'
+			}) 
+		}
+		
 		await user.load('enrollments.publications')
 
 		const { token } = await auth.attempt(data.email, data.password)
-
+		
 		return { token, user }
 	}
 
 	async read({ params, request, response, auth }) {
-		if(auth.user.id != Number(params.id)) {
-			return await response.status(403).json( {'Error': 'Acessing other user\'s profile is forbidden' }) 
+		if(auth.user.id != params.id) {
+			return response.status(403).json({
+				status: 'error',
+				code: 'DIFF_USER',
+				message: 'Acessing other user\'s profile is forbidden.'
+			}) 
 		}
 
 		const user = await User.findBy('id', params.id)
-		if(!user) return response.status(404).json({ 'Error': 'User not found.'})
+		if(!user) return response.status(404).json({
+			status: 'error',
+			code: 'USER_NOT_FOUND',
+			message: 'User not found.'
+		})
 
 		await user.load('enrollments.publications')
 
@@ -37,51 +58,79 @@ class UserController {
 	}
 
 	async update( { params, request, response, auth }) {
-		if(auth.user.id != Number(params.id)) {
-			return await response.status(403).json({ 'Error': 'Updating other user\'s profile is forbidden' }) 
+		if(auth.user.id != params.id) {
+			return response.status(403).json({
+				status: 'error',
+				code: 'DIFF_USER',
+				message: 'Updating other user\'s profile is forbidden.'
+			}) 
 		}
 
 		const validation = await Validator.validate(request.all(), User.updateRules)
 		if(validation.fails()) {
-			return await response.json(validation.messages()) 
+			return response.status(400).json({
+				status: 'error',
+				code: 'BAD_REQUEST',
+				message: validation.messages()
+			})
 		}
 
 		const data = request.only(['fullname', 'email', 'password']) 
 
 		let user = await User.findBy('id', params.id)
-		if(!user) return await response.status(404).json({ 'Error': 'User not found' })
+		if(!user) return response.status(404).json({
+			status: 'error',
+			code: 'USER_NOT_FOUND',
+			message: 'User not found.'
+		})
 
 		user.fullname = data.fullname
 		user.email    = data.email
 		user.password = data.password
 
 		await user.save()
-
 		await user.load('enrollments.publications')
-		return await response.json(user)
+
+		return response.json(user)
 	}
 	
 	async destroy({ params, response, auth }) {
-		if(auth.user.id != Number(params.id)) {
-			return await response.status(403).json( {'Error': 'Deleting other user\'s profile is forbidden' }) 
+		if(auth.user.id != params.id) {
+			return response.status(403).json({
+				status: 'error',
+				code: 'DIFF_USER',
+				message: 'Deleting other user\'s profile is forbidden.'
+			}) 
 		}
 
 		const user = await User.findBy('id', params.id);
-		if(!user)
-		{
-			return await response.status(404).json({ 'Error': 'User not found' })
-		}
+		if(!user) return response.status(404).json({
+			status: 'error',
+			code: 'USER_NOT_FOUND',
+			message: 'User not found.'
+		})
 
 		await user.delete()
-		return await response.status(200).json({ 'Status': 'User successfully deleted' })
+		return response.status(200).json({
+			status: 'success',
+			message: 'User successfully deleted.'
+		})
 	}
 
 	async getRanking({ request, response, auth, params }) {
 		const enrollment = await Enrollment.findBy('id', params.id)
-		if(!enrollment) return response.status(404).json({ 'Error': 'Enrollment not found.' })
+		if(!enrollment) return response.status(404).json({
+			status: 'error',
+			code: 'ENROLLMENT_NOT_FOUND',
+			message: 'Enrollment not found.'
+		})
 		
-		if(Number(auth.user.id) != Number(enrollment.user_id)) {
-			return response.status(403).json({ 'Error': `Accessing an enrollment from another user is forbidden.` })
+		if(auth.user.id != enrollment.user_id) {
+			return response.status(403).json({
+				status: 'error',
+				code: 'DIFF_USER',
+				message: 'Accessing an enrollment from another user is forbidden.'
+			}) 
 		}
 
 		const selection = await Selection.findBy('id', enrollment.selection_id)
