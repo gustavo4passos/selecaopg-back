@@ -333,7 +333,7 @@ class EnrollmentController {
 				pdf_link: publication.pdf_link,
 				annals_link: publication.proceedingsLink,
 				event_link: publication.eventLink,
-				has_file: publication.hasFile?true:false
+				has_file: publication.hasFile?'true':'false'
 			})
 		}
 
